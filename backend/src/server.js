@@ -24,12 +24,12 @@ const startServer = async () => {
       console.warn('  → Application will run with MySQL only');
     }
 
-    // Start server
-    app.listen(PORT, () => {
+    // Start server — bind to 0.0.0.0 for Render
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n🚀 Server running on port ${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 API URL: http://localhost:${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health\n`);
+      console.log(`🌐 API URL: ${process.env.BACKEND_URL || 'http://localhost:' + PORT}`);
+      console.log(`📊 Health check: ${(process.env.BACKEND_URL || 'http://localhost:' + PORT)}/health\n`);
     });
   } catch (error) {
     console.error('❌ Unable to start server:', error);
