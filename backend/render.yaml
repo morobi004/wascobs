@@ -8,10 +8,15 @@ services:
     startCommand: npm start
     healthCheckPath: /health
     envVars:
+      # Application
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
+      - key: API_VERSION
+        value: v1
+
+      # MySQL Database (Primary - Operational Data)
       - key: MYSQL_HOST
         value: viaduct.proxy.rlwy.net
       - key: MYSQL_PORT
@@ -22,6 +27,8 @@ services:
         value: opGOaKfYFvlengxJXoxLSJjmGYxVaZPN
       - key: MYSQL_DATABASE
         value: railway
+
+      # PostgreSQL Database (Secondary - Analytics)
       - key: POSTGRES_HOST
         fromDatabase:
           name: wasco-postgres
@@ -38,16 +45,22 @@ services:
           property: password
       - key: POSTGRES_DATABASE
         value: wasco_analytics
+
+      # JWT Authentication
       - key: JWT_SECRET
         value: wasco_super_secret_key_change_in_production_2024
       - key: JWT_REFRESH_SECRET
         value: wasco_refresh_secret_key_change_in_production_2024
+
+      # URLs
       - key: FRONTEND_URL
         value: https://wascobs.vercel.app
+      - key: BACKEND_URL
+        value: https://wascobs-backend.onrender.com
+
+      # CORS
       - key: CORS_ORIGIN
         value: https://wascobs.vercel.app
-
-
 
 databases:
   - name: wasco-mysql
@@ -56,5 +69,3 @@ databases:
   - name: wasco-postgres
     engine: postgres
     version: 14
-
-# Made with Bob
