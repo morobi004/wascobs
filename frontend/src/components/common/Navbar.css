@@ -1,0 +1,116 @@
+.navbar {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+.logo-icon {
+  font-size: 32px;
+}
+
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-menu li a,
+.navbar-menu li button {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.navbar-menu li a:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.btn-login {
+  border: 2px solid white !important;
+}
+
+.btn-register {
+  background: white !important;
+  color: #1976d2 !important;
+}
+
+.btn-register:hover {
+  background: #f5f5f5 !important;
+}
+
+.btn-logout {
+  background: rgba(255,255,255,0.2) !important;
+}
+
+.btn-logout:hover {
+  background: rgba(255,255,255,0.3) !important;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+}
+
+.user-info span {
+  color: white;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .navbar-menu {
+    gap: 10px;
+  }
+  
+  .navbar-menu li a,
+  .navbar-menu li button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .navbar-logo {
+    font-size: 20px;
+  }
+}
+
+/* Made with Bob */
