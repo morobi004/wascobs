@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: wasco-backend
+    name: WASCOBS
     env: node
     region: oregon
     plan: free
@@ -8,20 +8,27 @@ services:
     startCommand: npm start
     healthCheckPath: /health
     envVars:
+      # Application
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
+      - key: API_VERSION
+        value: v1
+
+      # MySQL Database (Primary - Operational Data)
       - key: MYSQL_HOST
-        value: containers-us-west-123.railway.app # Replace with your actual MySQL host
+        value: containers-us-west-123.railway.app   # ✅ Railway public host
       - key: MYSQL_PORT
         value: 3306
       - key: MYSQL_USER
-        value: root  # Replace with your actual MySQL username
+        value: root                                # ✅ username
       - key: MYSQL_PASSWORD
-        value: NewPass123  # Replace with your actual MySQL password
+        value: opGOakFYFvlengxJXoxLSjjmGYxVaZPN    # ✅ your real Railway password
       - key: MYSQL_DATABASE
         value: wasco_db
+
+      # PostgreSQL Database (Secondary - Analytics)
       - key: POSTGRES_HOST
         fromDatabase:
           name: wasco-postgres
@@ -38,16 +45,22 @@ services:
           property: password
       - key: POSTGRES_DATABASE
         value: wasco_analytics
+
+      # JWT Authentication
       - key: JWT_SECRET
         value: wasco_super_secret_key_change_in_production_2024
       - key: JWT_REFRESH_SECRET
         value: wasco_refresh_secret_key_change_in_production_2024
+
+      # URLs
       - key: FRONTEND_URL
         value: https://wascobs.vercel.app
+      - key: BACKEND_URL
+        value: https://wascobs-backend.onrender.com
+
+      # CORS
       - key: CORS_ORIGIN
         value: https://wascobs.vercel.app
-
-
 
 databases:
   - name: wasco-mysql
@@ -56,5 +69,3 @@ databases:
   - name: wasco-postgres
     engine: postgres
     version: 14
-
-# Made with Bob
