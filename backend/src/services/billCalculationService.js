@@ -1,4 +1,3 @@
-const { mysqlDB } = require('../config/database');
 const { BillingRate, WaterUsage, Bill, Customer } = require('../models/mysql');
 const { Op } = require('sequelize');
 
@@ -12,40 +11,40 @@ class BillCalculationService {
       throw new Error('Usage record not found');
     }
 
-    const consumption = usage.meter_reading - usage.previous_reading;
+    const consumption = parseFloat(usage.meter_reading) - parseFloat(usage.previous_reading);
     const connectionType = usage.Customer.connection_type;
 
     const rate = await BillingRate.findOne({
       where: {
-        connection_type: connectionType,
-        usage_range_min: { [Op.lte]: consumption },
+        customer_type: connectionType,
+        min_usage: { [Op.lte]: consumption },
         [Op.or]: [
-          { usage_range_max: { [Op.gte]: consumption } },
-          { usage_range_max: null }
+          { max_usage: { [Op.gte]: consumption } },
+          { max_usage: null }
         ],
         is_active: true,
-        effective_from: { [Op.lte]: new Date() },
+        effective_date: { [Op.lte]: new Date() },
         [Op.or]: [
-          { effective_to: { [Op.gte]: new Date() } },
-          { effective_to: null }
+          { end_date: { [Op.gte]: new Date() } },
+          { end_date: null }
         ]
       },
-      order: [['effective_from', 'DESC']]
+      order: [['effective_date', 'DESC']]
     });
 
     if (!rate) {
       throw new Error('No applicable billing rate found');
     }
 
-    const waterCharge = consumption * parseFloat(rate.cost_per_unit);
-    const sewerageCharge = waterCharge * (parseFloat(rate.sewerage_charge_percentage) / 100);
-    const fixedCharge = parseFloat(rate.fixed_charge);
+    const waterCharge = consumption * parseFloat(rate.rate_per_unit);
+    const sewerageCharge = 0; // Not in current schema
+    const fixedCharge = 0; // Not in current schema
     const subtotal = waterCharge + sewerageCharge + fixedCharge;
-    const vatAmount = subtotal * (parseFloat(rate.vat_percentage) / 100);
+    const vatAmount = 0; // Not in current schema
     const totalAmount = subtotal + vatAmount;
 
     return {
-      consumption,
+      consumption: parseFloat(consumption.toFixed(2)),
       waterCharge: waterCharge.toFixed(2),
       sewerageCharge: sewerageCharge.toFixed(2),
       fixedCharge: fixedCharge.toFixed(2),
@@ -80,11 +79,8 @@ class BillCalculationService {
     }
 
     const calculation = await this.calculateBillForUsage(usageId);
-
     const previousBalance = await this.getPreviousBalance(usage.account_number);
-
-    const dueDate = new Date(usage.reading_year, usage.reading_month, 15);
-
+    const dueDate = new Date(usage.reading_year, usage.reading_month - 1, 15);
     const billNumber = `WASCO-${usage.reading_year}${String(usage.reading_month).padStart(2, '0')}-${String(usageId).padStart(6, '0')}`;
 
     const bill = await Bill.create({
@@ -108,14 +104,19 @@ class BillCalculationService {
   }
 
   async getPreviousBalance(accountNumber) {
-    const result = await Bill.sum('balance', {
+    const bills = await Bill.findAll({
       where: {
         account_number: accountNumber,
         payment_status: { [Op.in]: ['unpaid', 'partial', 'overdue'] }
       }
     });
 
-    return result || 0;
+    return bills.reduce((sum, bill) => {
+      const totalAmount = parseFloat(bill.total_amount || 0);
+      const previousBalance = parseFloat(bill.previous_balance || 0);
+      const amountPaid = parseFloat(bill.amount_paid || 0);
+      return sum + totalAmount + previousBalance - amountPaid;
+    }, 0);
   }
 
   async generateMonthlyBills(month, year, generatedBy) {

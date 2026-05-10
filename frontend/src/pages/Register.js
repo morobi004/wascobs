@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
 const Register = () => {
@@ -16,6 +16,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -51,22 +52,15 @@ const Register = () => {
     }
 
     setLoading(true);
+    const { confirmPassword, ...registerData } = formData;
+    const result = await register(registerData);
 
-    try {
-      const { confirmPassword, ...registerData } = formData;
-      const response = await api.post('/auth/register', registerData);
-      
-      if (response.data.success) {
-        alert('Registration successful! Please login.');
-        navigate('/login');
-      } else {
-        setError(response.data.message || 'Registration failed');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.error || 'Registration failed. Please try again.');
     }
+    setLoading(false);
   };
 
   return (

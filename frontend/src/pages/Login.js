@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
 import './Auth.css';
 
 const Login = () => {
@@ -27,18 +26,12 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    try {
-      const response = await api.post('/auth/login', formData);
-      
-      if (response.data.success) {
-        login(response.data.token, response.data.user);
-        navigate('/dashboard');
-      } else {
-        setError(response.data.message || 'Login failed');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
-    } finally {
+    const result = await login(formData.email, formData.password);
+
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.error || 'Login failed. Please check your credentials.');
       setLoading(false);
     }
   };

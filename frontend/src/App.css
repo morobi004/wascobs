@@ -34,7 +34,97 @@
 }
 
 .App-main {
-  padding: 20px;
+  padding: 20px 20px 40px;
+  min-height: calc(100vh - 70px);
+}
+
+.dashboard-page,
+.customer-portal-page,
+.admin-panel-page,
+.manager-dashboard-page,
+.not-found-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-hero,
+.page-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-grid,
+.portal-grid,
+.metrics-grid,
+.analytics-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.dashboard-card,
+.portal-card,
+.metric-card,
+.analytics-card,
+.admin-actions,
+.action-item {
+  padding: 24px;
+}
+
+.action-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-actions {
+  margin-top: 20px;
+}
+
+.action-item h4 {
+  margin-bottom: 10px;
+}
+
+.page-header h1,
+.dashboard-hero h1,
+.admin-panel-page h1,
+.manager-dashboard-page h1 {
+  margin-bottom: 10px;
+}
+
+.page-header p,
+.dashboard-hero p {
+  color: #555;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .App-main {
+    padding: 20px 16px 30px;
+  }
+
+  .dashboard-grid,
+  .portal-grid,
+  .metrics-grid,
+  .analytics-grid,
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Made with Bob */

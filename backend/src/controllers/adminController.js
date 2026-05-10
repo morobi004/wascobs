@@ -15,7 +15,7 @@ class AdminController {
           (SELECT COUNT(*) FROM bills WHERE payment_status = 'overdue') as overdue_bills,
           (SELECT COUNT(*) FROM bills WHERE payment_status = 'paid') as paid_bills,
           (SELECT COALESCE(SUM(total_amount), 0) FROM bills WHERE payment_status IN ('pending', 'overdue')) as total_outstanding,
-          (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE payment_status = 'completed' AND MONTH(payment_date) = MONTH(CURRENT_DATE)) as monthly_revenue,
+          (SELECT COALESCE(SUM(payment_amount), 0) FROM payments WHERE payment_status = 'completed' AND MONTH(payment_date) = MONTH(CURRENT_DATE)) as monthly_revenue,
           (SELECT COUNT(*) FROM users) as total_users
       `, { type: sequelize.QueryTypes.SELECT });
 
@@ -39,7 +39,7 @@ class AdminController {
 
       const { count, rows } = await User.findAndCountAll({
         where,
-        attributes: { exclude: ['password'] },
+        attributes: { exclude: ['password_hash'] },
         limit: parseInt(limit),
         offset: parseInt(offset),
         order: [['created_at', 'DESC']]
@@ -81,7 +81,7 @@ class AdminController {
       // Create user
       const user = await User.create({
         email,
-        password: hashedPassword,
+        password_hash: hashedPassword,
         role,
         full_name,
         phone_number
@@ -89,7 +89,7 @@ class AdminController {
 
       // Remove password from response
       const userResponse = user.toJSON();
-      delete userResponse.password;
+      delete userResponse.password_hash;
 
       res.status(201).json({
         success: true,
@@ -114,7 +114,8 @@ class AdminController {
 
       // If password is being updated, hash it
       if (req.body.password) {
-        req.body.password = await bcrypt.hash(req.body.password, 10);
+        req.body.password_hash = await bcrypt.hash(req.body.password, 10);
+        delete req.body.password;
       }
 
       await user.update(req.body);
@@ -286,7 +287,7 @@ class AdminController {
   async getAllBillingRates(req, res, next) {
     try {
       const rates = await BillingRate.findAll({
-        order: [['connection_type', 'ASC'], ['min_usage', 'ASC']]
+        order: [['connection_type', 'ASC'], ['usage_range_min', 'ASC']]
       });
 
       res.json({
@@ -366,9 +367,9 @@ class AdminController {
       let query = `
         SELECT 
           DATE_FORMAT(p.payment_date, '%Y-%m') as month,
-          COUNT(p.id) as payment_count,
-          SUM(p.amount) as total_revenue,
-          AVG(p.amount) as avg_payment
+          COUNT(p.payment_id) as payment_count,
+          SUM(p.payment_amount) as total_revenue,
+          AVG(p.payment_amount) as avg_payment
         FROM payments p
         WHERE p.payment_status = 'completed'
       `;
@@ -447,17 +448,17 @@ class AdminController {
     try {
       const query = `
         SELECT 
-          d.name as district_name,
-          COUNT(DISTINCT c.id) as customer_count,
-          COUNT(DISTINCT CASE WHEN c.is_active = 1 THEN c.id END) as active_customers,
-          COUNT(DISTINCT b.id) as total_bills,
+          d.district_name as district_name,
+          COUNT(DISTINCT c.customer_id) as customer_count,
+          COUNT(DISTINCT CASE WHEN c.is_active = 1 THEN c.customer_id END) as active_customers,
+          COUNT(DISTINCT b.bill_id) as total_bills,
           COALESCE(SUM(CASE WHEN b.payment_status = 'paid' THEN b.total_amount ELSE 0 END), 0) as total_revenue,
           COALESCE(SUM(CASE WHEN b.payment_status IN ('pending', 'overdue') THEN b.total_amount ELSE 0 END), 0) as outstanding_amount
         FROM districts d
-        LEFT JOIN customers c ON d.id = c.district_id
+        LEFT JOIN customers c ON d.district_id = c.district_id
         LEFT JOIN bills b ON c.account_number = b.account_number
-        GROUP BY d.id, d.name
-        ORDER BY d.name
+        GROUP BY d.district_id, d.district_name
+        ORDER BY d.district_name
       `;
 
       const results = await sequelize.query(query, {

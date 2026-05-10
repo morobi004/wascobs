@@ -13,10 +13,10 @@ class ManagerController {
           DATE(payment_date) as date,
           COUNT(DISTINCT account_number) as unique_customers,
           COUNT(*) as transaction_count,
-          SUM(amount) as total_revenue,
-          AVG(amount) as avg_transaction,
-          MIN(amount) as min_transaction,
-          MAX(amount) as max_transaction
+          SUM(payment_amount) as total_revenue,
+          AVG(payment_amount) as avg_transaction,
+          MIN(payment_amount) as min_transaction,
+          MAX(payment_amount) as max_transaction
         FROM payments
         WHERE payment_status = 'completed'
       `;
@@ -65,8 +65,8 @@ class ManagerController {
           DATE(DATE_SUB(payment_date, INTERVAL WEEKDAY(payment_date) DAY)) as week_start,
           COUNT(DISTINCT account_number) as unique_customers,
           COUNT(*) as transaction_count,
-          SUM(amount) as total_revenue,
-          AVG(amount) as avg_transaction
+          SUM(payment_amount) as total_revenue,
+          AVG(payment_amount) as avg_transaction
         FROM payments
         WHERE payment_status = 'completed'
         AND YEAR(payment_date) = ?
@@ -109,8 +109,8 @@ class ManagerController {
           DATE_FORMAT(payment_date, '%Y-%m') as period,
           COUNT(DISTINCT account_number) as unique_customers,
           COUNT(*) as transaction_count,
-          SUM(amount) as total_revenue,
-          AVG(amount) as avg_transaction
+          SUM(payment_amount) as total_revenue,
+          AVG(payment_amount) as avg_transaction
         FROM payments
         WHERE payment_status = 'completed'
         AND YEAR(payment_date) = ?
@@ -153,8 +153,8 @@ class ManagerController {
           CONCAT(YEAR(payment_date), '-Q', QUARTER(payment_date)) as period,
           COUNT(DISTINCT account_number) as unique_customers,
           COUNT(*) as transaction_count,
-          SUM(amount) as total_revenue,
-          AVG(amount) as avg_transaction
+          SUM(payment_amount) as total_revenue,
+          AVG(payment_amount) as avg_transaction
         FROM payments
         WHERE payment_status = 'completed'
         AND YEAR(payment_date) = ?
@@ -194,8 +194,8 @@ class ManagerController {
           YEAR(payment_date) as year,
           COUNT(DISTINCT account_number) as unique_customers,
           COUNT(*) as transaction_count,
-          SUM(amount) as total_revenue,
-          AVG(amount) as avg_transaction
+          SUM(payment_amount) as total_revenue,
+          AVG(payment_amount) as avg_transaction
         FROM payments
         WHERE payment_status = 'completed'
       `;
@@ -278,14 +278,14 @@ class ManagerController {
       let query = `
         SELECT 
           c.connection_type,
-          d.name as district_name,
-          COUNT(c.id) as customer_count,
+          d.district_name as district_name,
+          COUNT(c.customer_id) as customer_count,
           COUNT(CASE WHEN c.is_active = 1 THEN 1 END) as active_count,
           COUNT(CASE WHEN c.is_active = 0 THEN 1 END) as inactive_count,
           AVG(COALESCE(wu.avg_consumption, 0)) as avg_consumption,
           SUM(COALESCE(b.outstanding, 0)) as total_outstanding
         FROM customers c
-        JOIN districts d ON c.district_id = d.id
+        JOIN districts d ON c.district_id = d.district_id
         LEFT JOIN (
           SELECT account_number, AVG(consumption) as avg_consumption
           FROM water_usage
@@ -425,7 +425,7 @@ class ManagerController {
           c.connection_type,
           d.name as district_name,
           wu.consumption,
-          wu.current_reading,
+          wu.meter_reading as current_reading,
           wu.previous_reading
         FROM water_usage wu
         JOIN customers c ON wu.account_number = c.account_number

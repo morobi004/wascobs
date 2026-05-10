@@ -15,9 +15,9 @@ router.put('/:id', authorize(['administrator']), customerController.update);
 router.delete('/:id', authorize(['administrator']), customerController.delete);
 
 // Customer-specific data
-router.get('/:accountNumber/bills', customerController.getBills);
-router.get('/:accountNumber/payments', customerController.getPayments);
-router.get('/:accountNumber/usage-history', customerController.getUsageHistory);
+router.get('/:customerId/bills', customerController.getBills);
+router.get('/:customerId/payments', customerController.getPayments);
+router.get('/:customerId/usage-history', customerController.getUsageHistory);
 
 module.exports = router;
 

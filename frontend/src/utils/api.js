@@ -40,11 +40,11 @@ api.interceptors.response.use(
           refreshToken
         });
 
-        const { accessToken } = response.data.data;
-        localStorage.setItem('accessToken', accessToken);
+        const { token } = response.data.data;
+        localStorage.setItem('accessToken', token);
 
         // Retry original request with new token
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${token}`;
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh failed, logout user

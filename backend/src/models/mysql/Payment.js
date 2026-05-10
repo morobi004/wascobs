@@ -15,12 +15,12 @@ const Payment = mysqlDB.define('payments', {
       key: 'bill_id'
     }
   },
-  account_number: {
-    type: DataTypes.STRING(20),
+  customer_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'customers',
-      key: 'account_number'
+      key: 'customer_id'
     }
   },
   payment_reference: {
@@ -28,12 +28,12 @@ const Payment = mysqlDB.define('payments', {
     unique: true,
     allowNull: false
   },
-  payment_method: {
-    type: DataTypes.ENUM('cash', 'card', 'mobile_money', 'bank_transfer', 'online'),
+  amount: {
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  payment_amount: {
-    type: DataTypes.DECIMAL(10, 2),
+  payment_method: {
+    type: DataTypes.ENUM('cash', 'card', 'mobile_money', 'bank_transfer', 'online'),
     allowNull: false
   },
   payment_date: {
@@ -43,25 +43,9 @@ const Payment = mysqlDB.define('payments', {
   transaction_id: {
     type: DataTypes.STRING(100)
   },
-  stripe_payment_intent_id: {
-    type: DataTypes.STRING(100)
-  },
-  stripe_charge_id: {
-    type: DataTypes.STRING(100)
-  },
   payment_status: {
-    type: DataTypes.ENUM('pending', 'completed', 'failed', 'refunded', 'cancelled'),
+    type: DataTypes.ENUM('pending', 'completed', 'failed', 'refunded'),
     defaultValue: 'pending'
-  },
-  processed_by: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'users',
-      key: 'user_id'
-    }
-  },
-  receipt_number: {
-    type: DataTypes.STRING(50)
   },
   notes: {
     type: DataTypes.TEXT
@@ -71,12 +55,11 @@ const Payment = mysqlDB.define('payments', {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   indexes: [
+    { fields: ['customer_id'] },
+    { fields: ['bill_id'] },
     { fields: ['payment_date'] },
     { fields: ['payment_status'] },
-    { fields: ['account_number'] },
-    { fields: ['bill_id'] },
-    { fields: ['payment_reference'] },
-    { fields: ['payment_method'] }
+    { fields: ['payment_reference'] }
   ]
 });
 

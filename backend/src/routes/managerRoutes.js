@@ -3,7 +3,7 @@ const router = express.Router();
 const managerController = require('../controllers/managerController');
 const { authenticate, authorize } = require('../middleware/auth');
 
-// All routes require authentication and branch_manager role
+// All routes require authentication and manager/branch_manager/administrator role
 router.use(authenticate);
 router.use(authorize(['branch_manager', 'administrator']));
 

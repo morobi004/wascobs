@@ -9,7 +9,6 @@ const Customer = mysqlDB.define('customers', {
   },
   user_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
       model: 'users',
       key: 'user_id'
@@ -21,30 +20,24 @@ const Customer = mysqlDB.define('customers', {
     allowNull: false
   },
   meter_number: {
-    type: DataTypes.STRING(20),
-    unique: true,
-    allowNull: false
+    type: DataTypes.STRING(20)
   },
   customer_type: {
     type: DataTypes.ENUM('residential', 'commercial', 'industrial', 'government'),
-    allowNull: false,
-    defaultValue: 'residential'
+    allowNull: false
   },
   address: {
-    type: DataTypes.TEXT,
-    allowNull: false
+    type: DataTypes.TEXT
   },
   district_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
       model: 'districts',
       key: 'district_id'
     }
   },
   connection_date: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
+    type: DataTypes.DATEONLY
   },
   status: {
     type: DataTypes.ENUM('active', 'inactive', 'suspended'),
@@ -56,12 +49,20 @@ const Customer = mysqlDB.define('customers', {
   updatedAt: 'updated_at',
   indexes: [
     { fields: ['account_number'] },
-    { fields: ['meter_number'] },
+    { fields: ['user_id'] },
     { fields: ['district_id'] },
     { fields: ['customer_type'] },
     { fields: ['status'] }
   ]
 });
+
+// Associations
+Customer.associate = (models) => {
+  Customer.belongsTo(models.User, { foreignKey: 'user_id' });
+  Customer.belongsTo(models.District, { foreignKey: 'district_id' });
+  Customer.hasMany(models.WaterUsage, { foreignKey: 'account_number', sourceKey: 'account_number' });
+  Customer.hasMany(models.Bill, { foreignKey: 'account_number', sourceKey: 'account_number' });
+};
 
 module.exports = Customer;
 

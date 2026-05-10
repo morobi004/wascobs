@@ -22,9 +22,25 @@ const app = express();
 app.use(helmet());
 
 // CORS configuration
+const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map(url => url.trim());
+const isLocalDevOrigin = (origin) => {
+  if (!origin) return false;
+  return /^(https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+):\d+)$/.test(origin);
+};
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || frontendOrigins.includes(origin) || (process.env.NODE_ENV === 'development' && isLocalDevOrigin(origin))) {
+      callback(null, origin || true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Authorization'],
+  optionsSuccessStatus: 200
 }));
 
 // Rate limiting

@@ -16,23 +16,35 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const storedUser = localStorage.getItem('user');
-    const accessToken = localStorage.getItem('accessToken');
+    const initializeAuth = async () => {
+      const storedUser = localStorage.getItem('user');
+      const accessToken = localStorage.getItem('accessToken');
 
-    if (storedUser && accessToken) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+      if (storedUser && accessToken) {
+        try {
+          const response = await authAPI.getProfile();
+          setUser(response.data.data);
+        } catch (error) {
+          localStorage.removeItem('user');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          setUser(null);
+        }
+      }
+
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email, password) => {
     try {
       const response = await authAPI.login({ email, password });
-      const { user, accessToken, refreshToken } = response.data.data;
+      const { user, token, refreshToken } = response.data.data;
 
       localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('accessToken', token);
       localStorage.setItem('refreshToken', refreshToken);
 
       setUser(user);
@@ -40,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Login failed'
+        error: error.response?.data?.error || error.response?.data?.message || 'Login failed'
       };
     }
   };
@@ -48,10 +60,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { user, accessToken, refreshToken } = response.data.data;
+      const { user, token, refreshToken } = response.data.data;
 
       localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('accessToken', token);
       localStorage.setItem('refreshToken', refreshToken);
 
       setUser(user);
@@ -59,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Registration failed'
+        error: error.response?.data?.error || error.response?.data?.message || 'Registration failed'
       };
     }
   };

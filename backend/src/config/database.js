@@ -93,6 +93,8 @@ const closeConnections = async () => {
 module.exports = {
   mysqlDB,
   postgresDB,
+  sequelize: mysqlDB,
+  postgresSequelize: postgresDB,
   testConnections,
   closeConnections
 };

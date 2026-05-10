@@ -46,8 +46,7 @@ const WaterUsage = mysqlDB.define('water_usage', {
   indexes: [
     { fields: ['customer_id'] },
     { fields: ['reading_date'] },
-    { fields: ['reading_type'] },
-    { fields: ['customer_id', 'reading_date'], unique: true }
+    { fields: ['reading_type'] }
   ]
 });
 

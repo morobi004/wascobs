@@ -7,30 +7,13 @@ const Bill = mysqlDB.define('bills', {
     primaryKey: true,
     autoIncrement: true
   },
-  account_number: {
-    type: DataTypes.STRING(20),
+  customer_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: 'customers',
-      key: 'account_number'
+      key: 'customer_id'
     }
-  },
-  bill_number: {
-    type: DataTypes.STRING(30),
-    unique: true,
-    allowNull: false
-  },
-  billing_month: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1,
-      max: 12
-    }
-  },
-  billing_year: {
-    type: DataTypes.INTEGER,
-    allowNull: false
   },
   usage_id: {
     type: DataTypes.INTEGER,
@@ -39,23 +22,28 @@ const Bill = mysqlDB.define('bills', {
       key: 'usage_id'
     }
   },
+  bill_number: {
+    type: DataTypes.STRING(20),
+    unique: true,
+    allowNull: false
+  },
+  billing_period_start: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  billing_period_end: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
   consumption: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  water_charge: {
+  base_amount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  sewerage_charge: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0.00
-  },
-  fixed_charge: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0.00
-  },
-  vat_amount: {
+  tax_amount: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
   },
@@ -63,56 +51,32 @@ const Bill = mysqlDB.define('bills', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  previous_balance: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0.00
+  due_date: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
   },
-  total_due: {
-    type: DataTypes.VIRTUAL,
-    get() {
-      return parseFloat(this.total_amount) + parseFloat(this.previous_balance);
-    }
+  payment_status: {
+    type: DataTypes.ENUM('unpaid', 'partial', 'paid', 'overdue'),
+    defaultValue: 'unpaid'
   },
   amount_paid: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
   },
   balance: {
-    type: DataTypes.VIRTUAL,
-    get() {
-      return parseFloat(this.total_amount) + parseFloat(this.previous_balance) - parseFloat(this.amount_paid);
-    }
-  },
-  due_date: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
-  },
-  payment_status: {
-    type: DataTypes.ENUM('unpaid', 'partial', 'paid', 'overdue', 'cancelled'),
-    defaultValue: 'unpaid'
-  },
-  generated_date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  generated_by: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'users',
-      key: 'user_id'
-    }
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00
   }
 }, {
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   indexes: [
-    { fields: ['payment_status'] },
-    { fields: ['due_date'] },
-    { fields: ['billing_month', 'billing_year'] },
-    { fields: ['account_number'] },
+    { fields: ['customer_id'] },
     { fields: ['bill_number'] },
-    { fields: ['account_number', 'billing_month', 'billing_year'], unique: true }
+    { fields: ['billing_period_end'] },
+    { fields: ['due_date'] },
+    { fields: ['payment_status'] }
   ]
 });
 

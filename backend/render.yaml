@@ -12,5 +12,51 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: MYSQL_HOST
+        fromDatabase:
+          name: wasco-mysql
+          property: host
+      - key: MYSQL_PORT
+        value: 3306
+      - key: MYSQL_USER
+        fromDatabase:
+          name: wasco-mysql
+          property: user
+      - key: MYSQL_PASSWORD
+        fromDatabase:
+          name: wasco-mysql
+          property: password
+      - key: MYSQL_DATABASE
+        value: wasco_db
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: wasco-postgres
+          property: host
+      - key: POSTGRES_PORT
+        value: 5432
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: wasco-postgres
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: wasco-postgres
+          property: password
+      - key: POSTGRES_DATABASE
+        value: wasco_analytics
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://your-frontend-domain.com
+
+databases:
+  - name: wasco-mysql
+    engine: mysql
+    version: 8
+  - name: wasco-postgres
+    engine: postgres
+    version: 14
 
 # Made with Bob
