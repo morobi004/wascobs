@@ -24,9 +24,6 @@ const startServer = async () => {
       console.warn('  → Application will run with MySQL only');
     }
 
-    // Note: Database sync is disabled because tables are already created via SQL scripts
-    // If you need to sync models, use: await mysqlDB.sync({ alter: false });
-
     // Start server
     app.listen(PORT, () => {
       console.log(`\n🚀 Server running on port ${PORT}`);
@@ -43,7 +40,6 @@ const startServer = async () => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('❌ Unhandled Promise Rejection:', err);
-  // Close server & exit process
   process.exit(1);
 });
 
@@ -56,19 +52,17 @@ process.on('uncaughtException', (err) => {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('👋 SIGTERM received. Shutting down gracefully...');
-  await sequelize.close();
-  await postgresSequelize.close();
+  await mysqlDB.close();
+  await postgresDB.close();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('👋 SIGINT received. Shutting down gracefully...');
-  await sequelize.close();
-  await postgresSequelize.close();
+  await mysqlDB.close();
+  await postgresDB.close();
   process.exit(0);
 });
 
 // Start the server
 startServer();
-
-// Made with Bob
