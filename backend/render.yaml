@@ -13,19 +13,13 @@ services:
       - key: PORT
         value: 10000
       - key: MYSQL_HOST
-        fromDatabase:
-          name: wasco-mysql
-          property: host
+        value: your-mysql-host  # Replace with your actual MySQL host
       - key: MYSQL_PORT
         value: 3306
       - key: MYSQL_USER
-        fromDatabase:
-          name: wasco-mysql
-          property: user
+        value: your-mysql-user  # Replace with your actual MySQL username
       - key: MYSQL_PASSWORD
-        fromDatabase:
-          name: wasco-mysql
-          property: password
+        value: your-mysql-password  # Replace with your actual MySQL password
       - key: MYSQL_DATABASE
         value: wasco_db
       - key: POSTGRES_HOST
@@ -45,11 +39,15 @@ services:
       - key: POSTGRES_DATABASE
         value: wasco_analytics
       - key: JWT_SECRET
-        sync: false
+        value: wasco_super_secret_key_change_in_production_2024
       - key: JWT_REFRESH_SECRET
-        sync: false
+        value: wasco_refresh_secret_key_change_in_production_2024
       - key: FRONTEND_URL
-        value: https://your-frontend-domain.com
+        value: https://wascobs.vercel.app
+      - key: CORS_ORIGIN
+        value: https://wascobs.vercel.app
+
+
 
 databases:
   - name: wasco-mysql
