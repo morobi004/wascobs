@@ -13,13 +13,13 @@ services:
       - key: PORT
         value: 10000
       - key: MYSQL_HOST
-        value: your-mysql-host  # Replace with your actual MySQL host
+        value: containers-us-west-123.railway.app # Replace with your actual MySQL host
       - key: MYSQL_PORT
         value: 3306
       - key: MYSQL_USER
-        value: your-mysql-user  # Replace with your actual MySQL username
+        value: root  # Replace with your actual MySQL username
       - key: MYSQL_PASSWORD
-        value: your-mysql-password  # Replace with your actual MySQL password
+        value: NewPass123  # Replace with your actual MySQL password
       - key: MYSQL_DATABASE
         value: wasco_db
       - key: POSTGRES_HOST
