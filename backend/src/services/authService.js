@@ -112,6 +112,10 @@ class AuthService {
     } catch (error) {
       throw new Error('Invalid refresh token');
     }
+    const API = axios.create({
+  baseURL: 'http://localhost:5000/api',
+});
+
   }
 }
 
